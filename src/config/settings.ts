@@ -1,7 +1,17 @@
+require('dotenv').config()
+
 export const settings = {
   port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
+  baseUrl: process.env.BASE_URL || `localhost:3000`,
 
   database: {
-    mongoUri: process.env.MONGO_URI,
+    mongoUri: process.env.MONGO_URI || '',
+  },
+
+  integrations: {
+    shopify: {
+      apiKey:       process.env.SHOPIFY_API_KEY || '',
+      apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY || '',
+    },
   },
 }

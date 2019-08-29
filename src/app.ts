@@ -7,6 +7,6 @@ const app: express.Application = express()
 
 app.use('/', router)
 
-app.listen(settings.port, () => {
+app.listen(settings.port, async () => {
   console.log(`Example app listening on port ${settings.port}!`)
 })

@@ -5,7 +5,7 @@ const router: Router = Router()
 
 router.use('/integrations', integrationsRouter)
 
-router.get('/', (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   res.json({
     root: true,
   })
