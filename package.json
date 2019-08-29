@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "prestart": "tsc",
+    "start": "node dist/app.js",
     "start:dev": "nodemon",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\""
