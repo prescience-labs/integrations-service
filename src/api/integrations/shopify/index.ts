@@ -23,9 +23,10 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.get('/oauth/start', async (req: Request, res: Response) => {
   try {
-    const shop: string        = req.params.shop
-    const timestamp: string   = req.params.timestamp
-    const hmac: string        = req.params.hmac
+    console.log(req.query)
+    const shop: string        = req.query.shop
+    const timestamp: string   = req.query.timestamp
+    const hmac: string        = req.query.hmac
     const redirectUri: string = `${settings.baseUrl}/integrations/shopify/oauth/redirect`
     const nonce: string       = uuid4()
 
@@ -38,7 +39,7 @@ router.get('/oauth/start', async (req: Request, res: Response) => {
 
     await auth.save()
 
-    res.redirect(`https://${shop}.myshopify.com/admin/oauth/authorize?client_id=${settings.integrations.shopify.apiKey}&scope=${scopes}&redirect_uri=${redirectUri}&state=${nonce}`)
+    res.redirect(`https://${shop}/admin/oauth/authorize?client_id=${settings.integrations.shopify.apiKey}&scope=${scopes}&redirect_uri=${redirectUri}&state=${nonce}`)
 
   } catch (e) {
     console.error((<Error>e).message)
