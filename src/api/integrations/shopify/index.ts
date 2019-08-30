@@ -1,6 +1,7 @@
 const uuid4 = require('uuid/v4')
 import { Request, Response, Router } from 'express'
 import { DB } from '../../../config/db'
+import { logger } from '../../../config/logger'
 import { settings } from '../../../config/settings'
 
 const router: Router = Router()
@@ -23,12 +24,13 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.get('/oauth/start', async (req: Request, res: Response) => {
   try {
-    console.log(req.query)
     const shop: string        = req.query.shop
     const timestamp: string   = req.query.timestamp
     const hmac: string        = req.query.hmac
     const redirectUri: string = `${settings.baseUrl}/integrations/shopify/oauth/redirect`
     const nonce: string       = uuid4()
+
+    logger.debug(`Redirect URI: ${redirectUri}`)
 
     const auth = new DB.Models.ShopifyAuth({
       shop,
@@ -40,7 +42,7 @@ router.get('/oauth/start', async (req: Request, res: Response) => {
 
     res.redirect(`https://${shop}/admin/oauth/authorize?client_id=${settings.integrations.shopify.apiKey}&scope=${scopes}&redirect_uri=${redirectUri}&state=${nonce}`)
   } catch (e) {
-    console.error((<Error>e).message)
+    logger.error((<Error>e).message)
   }
 })
 

@@ -1,4 +1,5 @@
 import { connect, connection, Connection } from 'mongoose'
+import { logger } from '../logger'
 import { settings } from '../settings'
 import { ShopifyAuth, ShopifyAuthModel } from './models/shopifyAuth'
 
@@ -32,10 +33,10 @@ export class DB {
   }
 
   private connected() {
-    console.log('Mongo has connected')
+    logger.info('Mongo has connected')
   }
 
   private error(err: any) {
-    console.error('Mongo has errored', err)
+    logger.error('Mongo has errored', err)
   }
 }
