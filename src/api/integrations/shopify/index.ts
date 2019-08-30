@@ -36,11 +36,9 @@ router.get('/oauth/start', async (req: Request, res: Response) => {
       hmac,
       nonce,
     })
-
     await auth.save()
 
     res.redirect(`https://${shop}/admin/oauth/authorize?client_id=${settings.integrations.shopify.apiKey}&scope=${scopes}&redirect_uri=${redirectUri}&state=${nonce}`)
-
   } catch (e) {
     console.error((<Error>e).message)
   }
