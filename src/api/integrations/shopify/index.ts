@@ -32,13 +32,12 @@ router.get('/oauth/start', async (req: Request, res: Response) => {
 
     logger.debug(`Redirect URI: ${redirectUri}`)
 
-    const auth = new DB.Models.ShopifyAuth({
+    const auth = await DB.Models.ShopifyAuth.findOneAndUpdate({ 'shop': shop }, {
       shop,
       timestamp,
       hmac,
       nonce,
-    })
-    await auth.save()
+    }, { upsert: true })
 
     res.redirect(`https://${shop}/admin/oauth/authorize?client_id=${settings.integrations.shopify.apiKey}&scope=${scopes}&redirect_uri=${redirectUri}&state=${nonce}`)
   } catch (e) {

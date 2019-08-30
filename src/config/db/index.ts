@@ -14,10 +14,15 @@ export class DB {
   private _models: IModels
 
   private constructor() {
-    connect(settings.database.mongoUri, { useNewUrlParser: true })
+    connect(settings.database.mongoUri, {
+      useNewUrlParser: true,
+      useFindAndModify: false,
+      useCreateIndex: true,
+    })
     this._db = connection
     this._db.on('open', this.connected)
     this._db.on('error', this.error)
+    this._db.on('close', this.close)
 
     this._models = {
       // initialize all models
@@ -38,5 +43,9 @@ export class DB {
 
   private error(err: any) {
     logger.error('Mongo has errored', err)
+  }
+
+  private close() {
+    logger.info('Mongo has disconnected')
   }
 }

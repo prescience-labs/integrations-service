@@ -14,7 +14,7 @@ export class ShopifyAuth {
 
   constructor() {
     const schema: Schema = new Schema({
-      shop: { type: String, required: true },
+      shop: { type: String, required: true, unique: true },
       timestamp: { type: String, required: true },
       hmac: { type: String, required: true },
       nonce: { type: String, required: true },
