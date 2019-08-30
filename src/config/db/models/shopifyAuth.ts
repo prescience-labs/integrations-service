@@ -13,12 +13,17 @@ export class ShopifyAuth {
   private _model: Model<IShopifyAuth>
 
   constructor() {
-    const schema: Schema = new Schema({
-      shop: { type: String, required: true, unique: true },
-      timestamp: { type: String, required: true },
-      hmac: { type: String, required: true },
-      nonce: { type: String, required: true },
-    }, { timestamps: true })
+    const schema: Schema = new Schema(
+      {
+        shop: { type: String, required: true, unique: true },
+        nonce: { type: String, required: true },
+        authorizationCode: { type: String },
+        accesssToken: { type: String },
+        scope: { type: String },
+        meta: { type: Schema.Types.Mixed },
+      },
+      { timestamps: true },
+    )
 
     this._model = model<IShopifyAuth>('ShopifyAuth', schema)
   }

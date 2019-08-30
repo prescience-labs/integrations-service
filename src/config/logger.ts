@@ -30,7 +30,7 @@ logger.add(
         return message
       }),
     ),
-  })
+  }),
 )
 
 export { logger }

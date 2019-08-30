@@ -11,7 +11,7 @@ export const settings = {
 
   integrations: {
     shopify: {
-      apiKey:       process.env.SHOPIFY_API_KEY || '',
+      apiKey: process.env.SHOPIFY_API_KEY || '',
       apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY || '',
     },
   },
