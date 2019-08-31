@@ -42,7 +42,7 @@ router.get('/oauth/start', async (req: Request, res: Response) => {
 
     logger.debug(`Redirect URI: ${shopifyRedirect}`)
 
-    const auth = await DB.Models.ShopifyAuth.findOneAndUpdate(
+    const shopifyAuth = await DB.Models.ShopifyAuth.findOneAndUpdate(
       { shop: shop },
       {
         shop,
@@ -58,11 +58,12 @@ router.get('/oauth/start', async (req: Request, res: Response) => {
 })
 
 router.get('/oauth/redirect', async (req: Request, res: Response) => {
+  const authorizationCode: string = req.query.code
+  const hmac: string = req.query.hmac
+  const nonce: string = req.query.state
+  const shop: string = req.query.shop
+
   try {
-    const authorizationCode: string = req.query.code
-    const hmac: string = req.query.hmac
-    const nonce: string = req.query.state
-    const shop: string = req.query.shop
 
     const shopifyAuth = await DB.Models.ShopifyAuth.findOneAndUpdate(
       { shop, nonce },
@@ -78,6 +79,9 @@ router.get('/oauth/redirect', async (req: Request, res: Response) => {
     logger.info(`POST ${authTokenUrl}`)
     logger.info(authTokenPostData)
     const result: IAccessTokenResponse = await Axios.post(authTokenUrl, authTokenPostData)
+    logger.debug(result)
+
+    res.redirect(`https://${shop}/admin`)
 
     const updateShopifyAuth = await DB.Models.ShopifyAuth.findOneAndUpdate(
       { shop },
@@ -87,8 +91,8 @@ router.get('/oauth/redirect', async (req: Request, res: Response) => {
         meta: result,
       },
     )
-    res.redirect(`https://${shop}/admin`)
   } catch (e) {
+    res.redirect(`https://${shop}/admin`)
     logger.error((<Error>e).message)
   }
 })
