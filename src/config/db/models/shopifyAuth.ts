@@ -2,9 +2,11 @@ import { Document, model, Model, Schema } from 'mongoose'
 
 declare interface IShopifyAuth extends Document {
   shop: string
-  timestamp: string
-  hmac: string
   nonce: string
+  authorizationCode?: string
+  accessToken?: string
+  scope?: string
+  meta?: any
 }
 
 export interface ShopifyAuthModel extends Model<IShopifyAuth> {}

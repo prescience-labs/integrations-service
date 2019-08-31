@@ -1,10 +1,13 @@
 import { connect, connection, Connection } from 'mongoose'
 import { logger } from '../logger'
 import { settings } from '../settings'
+
 import { ShopifyAuth, ShopifyAuthModel } from './models/shopifyAuth'
+import { ShopifyWebhook, ShopifyWebhookModel } from './models/shopifyWebhook'
 
 declare interface IModels {
   ShopifyAuth: ShopifyAuthModel
+  ShopifyWebhook: ShopifyWebhookModel
 }
 
 export class DB {
@@ -30,6 +33,7 @@ export class DB {
     this._models = {
       // initialize all models
       ShopifyAuth: new ShopifyAuth().model,
+      ShopifyWebhook: new ShopifyWebhook().model,
     }
   }
 
