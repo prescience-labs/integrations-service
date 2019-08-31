@@ -18,11 +18,12 @@ const scopesList: string[] = [
 const scopes: string = scopesList.join(',')
 
 interface IAccessTokenResponse {
-  access_token: string
-  scope: string
-  expires_in: number
-  associated_user_scope: string
-  associated_user: any
+  data: { access_token: string
+    scope: string
+    expires_in: number
+    associated_user_scope: string
+    associated_user: any
+  }
 }
 
 router.get('/', async (req: Request, res: Response) => {
@@ -39,7 +40,6 @@ router.get('/oauth/start', async (req: Request, res: Response) => {
     const nonce: string = uuid4()
 
     const shopifyRedirect: string = `https://${shop}/admin/oauth/authorize?client_id=${settings.integrations.shopify.apiKey}&scope=${scopes}&redirect_uri=${redirectUri}&state=${nonce}`
-
     logger.debug(`Redirect URI: ${shopifyRedirect}`)
 
     const shopifyAuth = await DB.Models.ShopifyAuth.findOneAndUpdate(
@@ -64,11 +64,14 @@ router.get('/oauth/redirect', async (req: Request, res: Response) => {
   const shop: string = req.query.shop
 
   try {
-
     const shopifyAuth = await DB.Models.ShopifyAuth.findOneAndUpdate(
       { shop, nonce },
       { authorizationCode },
     )
+
+    if (shopifyAuth == null) {
+      throw Error(`The shopify shop ${shop} doesn't exist in the database, or the nonce was invalid.`)
+    }
 
     const authTokenUrl: string = `https://${shop}/admin/oauth/access_token`
     const authTokenPostData: any = {
@@ -79,21 +82,18 @@ router.get('/oauth/redirect', async (req: Request, res: Response) => {
     logger.info(`POST ${authTokenUrl}`)
     logger.info(authTokenPostData)
     const result: IAccessTokenResponse = await Axios.post(authTokenUrl, authTokenPostData)
-    logger.debug(result)
+    logger.debug('Response:')
+    logger.debug(result.data)
 
-    res.redirect(`https://${shop}/admin`)
-
-    const updateShopifyAuth = await DB.Models.ShopifyAuth.findOneAndUpdate(
-      { shop },
-      {
-        accessToken: result.access_token,
-        scope: result.scope,
-        meta: result,
-      },
-    )
+    await shopifyAuth.updateOne({
+      accessToken: result.data.access_token,
+      scope: result.data.scope,
+      meta: result.data,
+    })
   } catch (e) {
-    res.redirect(`https://${shop}/admin`)
     logger.error((<Error>e).message)
+  } finally {
+    res.redirect(`https://${shop}/admin`)
   }
 })
 

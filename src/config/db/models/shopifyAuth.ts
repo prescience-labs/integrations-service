@@ -18,7 +18,7 @@ export class ShopifyAuth {
         shop: { type: String, required: true, unique: true },
         nonce: { type: String, required: true },
         authorizationCode: { type: String },
-        accesssToken: { type: String },
+        accessToken: { type: String },
         scope: { type: String },
         meta: { type: Schema.Types.Mixed },
       },
