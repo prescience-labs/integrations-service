@@ -1,0 +1,88 @@
+/*.widefat {width: auto;}
+.ss-list-width {min-width:10%}
+.ss-form-width {width:100%}
+.ss-th-width {width:25%}
+.ss-field-width {width:75%}*/
+
+
+
+html, body{
+    font-family: 'Raleway', sans-serif;
+
+}
+a,a:hover, a:active, a:focus  {
+    outline: 0 !important;
+    text-decoration: none;
+}
+*{
+    font-family: 'Open Sans', sans-serif;
+    margin: 0px;
+    padding: 0px;
+}
+a{
+    text-decoration: none;
+}
+ul {
+    padding: 0;
+    margin: 0;
+}
+h1, h2, h3, h4, h5, h6{
+    padding: 0px;
+    margin: 0px;
+}
+p{
+    font-size: 14px;
+    color: #484848;
+    line-height: 24px;
+    margin-top: 12px;
+    margin-bottom: 0px;
+    text-align: justify;
+}
+.top_listallreview ul li {
+    list-style: none;
+    display: inline;
+    border-right: 1px solid black;
+    padding: 0px 10px;
+}
+.review_noborder {
+    border: none !important;
+}
+.top_listallreview p {
+    display: inline;
+}
+.search-container button {
+    background: #f7f7f7;
+}
+.top_allreviewdrop{
+    float: left;
+    width: 100%;
+}
+
+.top_listallreview {
+    margin-bottom: 20px;
+}
+.review_id p {
+
+    margin-top: 0px;
+}
+.tables_rev p {
+    margin-top: 0;
+}
+.col-lg-1, .col-md-1, .col-sm-1, .col-lg-2, .col-md-2, .col-sm-2, .col-lg-3, .col-md-3, .col-sm-3, .col-lg-4, .col-md-4, .col-sm-4, .col-lg-5, .col-md-5, .col-sm-5, .col-lg-6, .col-md-6, .col-sm-6, .col-lg-7, .col-md-7, .col-sm-7, .col-lg-8, .col-md-8, .col-sm-8, .col-lg-9, .col-md-9, .col-sm-9, .col-lg-10, .col-md-10, .col-sm-10, .col-lg-11, .col-md-11, .col-sm-11, .col-lg-12, .col-md-12, .col-sm-12{
+    padding: 0px !important;
+}
+
+.add-review p {
+    font-size: 26px;
+    text-align: center;
+}
+
+
+.reviews_one {
+    background-color: #fff;
+    padding: 29px;
+    box-shadow: 0px 0px 5px 3px #aaaaaa;
+    width: 100%;
+    margin: 0 auto;
+    max-width: 600px;
+}
