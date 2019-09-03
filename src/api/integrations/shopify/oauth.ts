@@ -37,7 +37,7 @@ router.get('/start', async (req: Request, res: Response) => {
     logger.debug(`Redirect URI: ${shopifyRedirect}`)
 
     const shopifyAuth = await DB.Models.ShopifyAuth.findOneAndUpdate(
-      { shop: shop },
+      { shop },
       {
         shop,
         nonce,
