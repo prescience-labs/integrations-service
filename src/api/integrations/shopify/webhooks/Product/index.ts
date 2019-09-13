@@ -1,8 +1,8 @@
 import { ICreateWebhook } from "shopify-api-node";
 import { getFullyQualifiedWebhookAddress } from "..";
 
-export default [{
+export default (shopName: string) => [{
   topic: 'products/update',
-  address: getFullyQualifiedWebhookAddress('product'),
+  address: getFullyQualifiedWebhookAddress('product', shopName),
   format: 'json'
 }] as ICreateWebhook[]

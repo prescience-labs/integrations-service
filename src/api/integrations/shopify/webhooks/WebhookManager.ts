@@ -10,7 +10,7 @@ export class ShopifyWebhookManager {
   private webhooks: ICreateWebhook[]
   private shop: string
   constructor(shop: string) {
-    this.webhooks = [...OrderWebhooks, ...ProductWebhooks]
+    this.webhooks = [...OrderWebhooks(shop), ...ProductWebhooks(shop)]
     this.shop = shop
   }
   private async getStore() {
