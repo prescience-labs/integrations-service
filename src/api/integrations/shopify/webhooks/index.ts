@@ -9,7 +9,7 @@ export enum WebhookAddresses {
 }
 
 export const getFullyQualifiedWebhookAddress = (webhook: keyof typeof WebhookAddresses) => {
-  return `${settings.baseUrl}/integrations/shopify/webhooks/${WebhookAddresses[webhook]}`
+  return `${settings.baseUrl}/integrations/shopify/webhooks${WebhookAddresses[webhook]}`
 }
 
 const router = Router()
