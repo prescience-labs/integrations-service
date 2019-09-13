@@ -10,7 +10,6 @@ export interface IInitializeStore {
 }
 
 export const updateStore = (params: IInitializeStore) => {
-  logger.info('updating store')
   refreshOrders(params)
   refreshProducts(params)
 }
@@ -19,7 +18,7 @@ export const refreshProducts = async (params: IInitializeStore) => {
   const products = await getStore(params).product.list()
   logger.info('updating products')
   products.map(async product => {
-    const updatedProduct = await DB.Models.Product.create(Product.serializeFromShopify(product, params.shopName))
+    DB.Models.Product.findOneAndUpdate({ productId: product.id, shopName: params.shopName }, Product.serializeFromShopify(product, params.shopName)).exec()
   })
 }
 
@@ -27,7 +26,8 @@ export const refreshOrders = async (params: IInitializeStore) => {
   const orders = await getStore(params).order.list()
   logger.info('updating orders')
   orders.map(order => {
-    DB.Models.Order.findOneAndUpdate({ orderId: order.id }, Order.serializeFromShopify(order, params.shopName))
+    logger.info('order')
+    DB.Models.Order.create({ orderId: order.id }, Order.serializeFromShopify(order, params.shopName))
   })
 
 }
