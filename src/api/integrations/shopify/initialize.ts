@@ -18,7 +18,7 @@ export const updateStore = (params: IInitializeStore) => {
 export const refreshProducts = async (params: IInitializeStore) => {
   const products = await getStore(params).product.list()
   products.map(async product => {
-    const updatedProduct = await DB.Models.Order.findOneAndUpdate({ shopName: params.shopName, productId: product.id }, Product.serializeFromShopify(product, params.shopName))
+    const updatedProduct = await DB.Models.Product.findOneAndUpdate({ shopName: params.shopName, productId: product.id }, Product.serializeFromShopify(product, params.shopName))
     logger.info('product updated', JSON.stringify(updatedProduct, null, 2))
   })
 }
