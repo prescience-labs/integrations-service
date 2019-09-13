@@ -29,7 +29,7 @@ router.post('/product/:shopName', (req: Request, res: Response) => {
   logger.info('product updated')
   const shopName = req.params.shopName
   const product = req.body as Shopify.IProduct
-  DB.Models.Order.findOneAndUpdate({ productId: product.id, shopName }, Product.serializeFromShopify(product, shopName), { upsert: true })
+  DB.Models.Product.findOneAndUpdate({ productId: product.id, shopName }, Product.serializeFromShopify(product, shopName), { upsert: true })
   logger.info(JSON.stringify(product, null, 2))
   res.sendStatus(200)
 })
