@@ -1,6 +1,6 @@
 import { Document, model, Model, Schema } from 'mongoose'
 
-declare interface IShopifyAuth extends Document {
+export interface IShopifyAuth extends Document {
   shop: string
   nonce: string
   authorizationCode?: string

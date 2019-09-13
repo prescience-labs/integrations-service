@@ -4,7 +4,7 @@ import { Order } from '../../../config/db/models/order'
 import { Product } from '../../../config/db/models/product'
 import { logger } from '../../../config/logger'
 
-interface IInitializeStore {
+export interface IInitializeStore {
   accessToken: string,
   shopName: string
 }
