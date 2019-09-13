@@ -23,7 +23,7 @@ router.post('/order', (req: Request, res: Response) => {
 router.post('/product', (req: Request, res: Response) => {
   logger.info('product updated')
   const product = req.body as Shopify.IProduct
-  logger.info(product.title)
+  logger.info(JSON.stringify(product, null, 2))
   res.sendStatus(200)
 })
 
