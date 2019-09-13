@@ -3,6 +3,8 @@ import Shopify = require('shopify-api-node')
 
 declare interface IProduct {
   email: string
+  shopName: string
+  title: string
 }
 
 declare interface IProductDocument extends IProduct, Document { }
@@ -27,10 +29,12 @@ export class Product {
     return this._model
   }
 
-  public static serializeFromShopify(input: Shopify.IProduct): IProduct {
+  public static serializeFromShopify(input: Shopify.IProduct, shopName: string): IProduct {
 
     return {
-      email: input.title
+      email: input.title,
+      title: input.title,
+      shopName,
     }
   }
 }

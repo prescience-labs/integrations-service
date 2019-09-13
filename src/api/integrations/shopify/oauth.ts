@@ -5,6 +5,8 @@ import { DB } from '../../../config/db'
 import { logger } from '../../../config/logger'
 import { settings } from '../../../config/settings'
 import { ShopifyWebhookManager } from './webhooks/WebhookManager'
+import { updateStore } from './initialize'
+
 const router: Router = Router()
 
 const scopesList: string[] = [
@@ -94,6 +96,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
       meta: result.data,
     })
     new ShopifyWebhookManager(shop).init()
+    updateStore({ accessToken: result.data.access_token, shopName: shop })
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {

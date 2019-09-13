@@ -2,7 +2,9 @@ import { Document, model, Model, Schema } from 'mongoose'
 import Shopify = require('shopify-api-node')
 
 declare interface IOrder {
-  email: string
+  email: string,
+  orderId: number,
+  shopName: string,
 }
 
 declare interface IOrderDocument extends IOrder, Document { }
@@ -27,10 +29,12 @@ export class Order {
     return this._model
   }
 
-  public static serializeFromShopify(input: Shopify.IOrder): IOrder {
+  public static serializeFromShopify(input: Shopify.IOrder, shopName: string): IOrder {
 
     return {
-      email: input.email
+      email: input.email,
+      orderId: input.id,
+      shopName,
     }
   }
 }
