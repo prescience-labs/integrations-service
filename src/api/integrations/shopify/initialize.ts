@@ -19,7 +19,7 @@ export const refreshProducts = async (params: IInitializeStore) => {
   const products = await getStore(params).product.list()
   logger.info('updating products')
   products.map(async product => {
-    const updatedProduct = await DB.Models.Product.findOneAndUpdate({ productId: product.id }, Product.serializeFromShopify(product, params.shopName))
+    const updatedProduct = await DB.Models.Product.create(Product.serializeFromShopify(product, params.shopName))
   })
 }
 
