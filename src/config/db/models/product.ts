@@ -5,7 +5,8 @@ declare interface IProduct {
   email: string
   shopName: string
   title: string,
-  image?: string
+  image?: string,
+  productId: number
 }
 
 declare interface IProductDocument extends IProduct, Document { }
@@ -37,6 +38,7 @@ export class Product {
       title: input.title,
       image: input.image && input.image.src,
       shopName,
+      productId: input.id
     }
   }
 }
