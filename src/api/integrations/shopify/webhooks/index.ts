@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Response, Request } from "express";
 import Shopify = require("shopify-api-node");
 import { settings } from "../../../../config/settings";
 
@@ -13,16 +13,16 @@ export const getFullyQualifiedWebhookAddress = (webhook: keyof typeof WebhookAdd
 
 const router = Router()
 
-router.post('/order', (req, res) => {
+router.post('/order', (req: Request, res: Response) => {
   console.log('webhook!!', req.body)
   const order: Shopify.IOrder = req.body as Shopify.IOrder
 })
 
-router.post('/product', (req, res) => {
+router.post('/product', (req: Request, res: Response) => {
 
 })
 
-router.get('/', (req, res) => {
+router.get('/', (req: Request, res: Response) => {
   res.json({
     loc: '/integrations/shopify/webhooks',
   })
