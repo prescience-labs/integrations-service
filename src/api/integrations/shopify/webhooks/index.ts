@@ -9,7 +9,7 @@ export enum WebhookAddresses {
 }
 
 export const getFullyQualifiedWebhookAddress = (webhook: keyof typeof WebhookAddresses) => {
-  return `${settings.baseUrl}/integrations/shopify/webhooks${WebhookAddresses[webhook]}`
+  return `${settings.baseUrl}/integrations/shopify/webhook${WebhookAddresses[webhook]}`
 }
 
 const router = Router()
@@ -19,7 +19,7 @@ router.post('/order', (req: Request, res: Response) => {
   const order: Shopify.IOrder = req.body as Shopify.IOrder
 })
 
-router.post('/product', (req: Request, res: Response) => {
+router.all('/product', (req: Request, res: Response) => {
   logger.info('product updated', req.body)
 })
 
