@@ -28,7 +28,7 @@ export class ShopifyWebhookManager {
         const response: Shopify.IWebhook = await store.webhook.create(webhook)
         logger.info(`webhook ${webhook.topic} created`)
         await DB.Models.ShopifyWebhook.findOneAndUpdate(
-          { shop: this.shop },
+          { shop: this.shop, topic: webhook.topic },
           {
             shop: this.shop,
             address: response.address,

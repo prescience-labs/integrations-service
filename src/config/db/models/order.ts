@@ -18,6 +18,8 @@ export class Order {
     const schema: Schema = new Schema(
       {
         email: { type: String, required: true },
+        orderId: { type: String, },
+        shopName: { type: String }
       },
       { timestamps: true },
     )
