@@ -4,10 +4,12 @@ import { settings } from '../settings'
 
 import { ShopifyAuth, ShopifyAuthModel } from './models/shopifyAuth'
 import { ShopifyWebhook, ShopifyWebhookModel } from './models/shopifyWebhook'
+import { Order, OrderModel } from './models/order'
 
 declare interface IModels {
   ShopifyAuth: ShopifyAuthModel
   ShopifyWebhook: ShopifyWebhookModel
+  Order: OrderModel
 }
 
 export class DB {
@@ -34,6 +36,7 @@ export class DB {
       // initialize all models
       ShopifyAuth: new ShopifyAuth().model,
       ShopifyWebhook: new ShopifyWebhook().model,
+      Order: new Order().model
     }
   }
 

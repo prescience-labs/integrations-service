@@ -4,7 +4,7 @@ import { Request, Response, Router } from 'express'
 import { DB } from '../../../config/db'
 import { logger } from '../../../config/logger'
 import { settings } from '../../../config/settings'
-import { createWebhook } from './helpers/webhooks'
+import { ShopifyWebhookManager } from './webhooks/WebhookManager'
 const router: Router = Router()
 
 const scopesList: string[] = [
@@ -91,16 +91,11 @@ router.get('/redirect', async (req: Request, res: Response) => {
       scope: result.data.scope,
       meta: result.data,
     })
-    const webhook = await createWebhook(
-      shop,
-      'orders/create',
-      result.data.access_token,
-    )
-    console.log(webhook)
+    new ShopifyWebhookManager(shop).init()
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {
-    res.redirect(`https://app.dataintel.ai`)
+    res.redirect(`https://${shop}/data-intel`)
   }
 })
 

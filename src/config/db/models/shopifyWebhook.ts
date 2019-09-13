@@ -11,7 +11,7 @@ declare interface IShopifyWebhook extends Document {
   apiVersion: string,
 }
 
-export interface ShopifyWebhookModel extends Model<IShopifyWebhook> {}
+export interface ShopifyWebhookModel extends Model<IShopifyWebhook> { }
 
 export class ShopifyWebhook {
   private _model: Model<IShopifyWebhook>
@@ -19,7 +19,7 @@ export class ShopifyWebhook {
   constructor() {
     const schema: Schema = new Schema(
       {
-        shop: { type: String, required: true, unique: true },
+        shop: { type: String, required: true },
         shopifyId: { type: String, required: true },
         topic: { type: String, required: true },
         shopifyCreatedAt: { type: String },
@@ -30,6 +30,7 @@ export class ShopifyWebhook {
       },
       { timestamps: true },
     )
+    schema.index({ shop: 1, topic: 1 }, { unique: true })
 
     this._model = model<IShopifyWebhook>('ShopifyWebhook', schema)
   }
