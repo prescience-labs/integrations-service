@@ -99,4 +99,10 @@ router.get('/redirect', async (req: Request, res: Response) => {
   }
 })
 
+router.get('/', (req: Request, res: Response) => {
+  res.json({
+    loc: '/integrations/shopify/oauth'
+  })
+})
+
 export { router }
