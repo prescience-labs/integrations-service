@@ -1,5 +1,6 @@
 import { Document, model, Model, Schema } from 'mongoose'
 import Shopify = require('shopify-api-node')
+import { DB } from '..'
 
 declare interface IProduct {
   shopName: string
@@ -42,6 +43,7 @@ export class Product {
       productId: input.id
     }
   }
+
 }
 
 export const product = new Product()
