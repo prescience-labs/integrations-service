@@ -20,7 +20,7 @@ router.post('/order', (req: Request, res: Response) => {
   res.sendStatus(200)
 })
 
-router.all('/product', (req: Request, res: Response) => {
+router.post('/product', (req: Request, res: Response) => {
   logger.info('product updated', req.body)
   res.sendStatus(200)
 })
