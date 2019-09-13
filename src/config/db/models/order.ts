@@ -17,7 +17,7 @@ export class Order {
   constructor() {
     const schema: Schema = new Schema(
       {
-        email: { type: String, required: true },
+        email: { type: String },
         orderId: { type: String, },
         shopName: { type: String }
       },

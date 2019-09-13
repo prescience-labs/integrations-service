@@ -27,7 +27,7 @@ export const refreshOrders = async (params: IInitializeStore) => {
   logger.info('updating orders')
   orders.map(order => {
     logger.info('order')
-    DB.Models.Order.create({ orderId: order.id }, Order.serializeFromShopify(order, params.shopName))
+    DB.Models.Order.findOneAndUpdate({ orderId: order.id }, Order.serializeFromShopify(order, params.shopName)).exec()
   })
 
 }
