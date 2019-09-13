@@ -20,7 +20,7 @@ export class Order {
       { timestamps: true },
     )
 
-    this._model = model<IOrderDocument>('ShopifyAuth', schema)
+    this._model = model<IOrderDocument>('Order', schema)
   }
 
   public get model(): Model<IOrderDocument> {

@@ -20,7 +20,7 @@ export class Product {
       { timestamps: true },
     )
 
-    this._model = model<IProductDocument>('ShopifyAuth', schema)
+    this._model = model<IProductDocument>('Product', schema)
   }
 
   public get model(): Model<IProductDocument> {
