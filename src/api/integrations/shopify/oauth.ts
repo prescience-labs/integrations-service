@@ -4,7 +4,8 @@ import { Request, Response, Router } from 'express'
 import { DB } from '../../../config/db'
 import { logger } from '../../../config/logger'
 import { settings } from '../../../config/settings'
-
+import ShopifyAuth from 'shopify-token'
+import { createWebhook } from './helpers/webhooks'
 const router: Router = Router()
 
 const scopesList: string[] = [
@@ -18,7 +19,8 @@ const scopesList: string[] = [
 const scopes: string = scopesList.join(',')
 
 interface IAccessTokenResponse {
-  data: { access_token: string
+  data: {
+    access_token: string
     scope: string
     expires_in: number
     associated_user_scope: string
@@ -64,7 +66,9 @@ router.get('/redirect', async (req: Request, res: Response) => {
     )
 
     if (shopifyAuth == null) {
-      throw Error(`The shopify shop ${shop} doesn't exist in the database, or the nonce was invalid.`)
+      throw Error(
+        `The shopify shop ${shop} doesn't exist in the database, or the nonce was invalid.`,
+      )
     }
 
     const authTokenUrl: string = `https://${shop}/admin/oauth/access_token`
@@ -73,9 +77,13 @@ router.get('/redirect', async (req: Request, res: Response) => {
       client_secret: settings.integrations.shopify.apiSecretKey,
       code: authorizationCode,
     }
+
     logger.info(`POST ${authTokenUrl}`)
     logger.info(authTokenPostData)
-    const result: IAccessTokenResponse = await Axios.post(authTokenUrl, authTokenPostData)
+    const result: IAccessTokenResponse = await Axios.post(
+      authTokenUrl,
+      authTokenPostData,
+    )
     logger.debug('Response:')
     logger.debug(result.data)
 
@@ -84,6 +92,12 @@ router.get('/redirect', async (req: Request, res: Response) => {
       scope: result.data.scope,
       meta: result.data,
     })
+    const webhook = await createWebhook(
+      shop,
+      'orders/create',
+      result.data.access_token,
+    )
+    console.log(webhook)
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {

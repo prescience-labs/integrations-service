@@ -10,10 +10,14 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
+    "@types/body-parser": "^1.17.1",
     "axios": "^0.19.0",
+    "body-parser": "^1.19.0",
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
     "mongoose": "^5.6.11",
+    "shopify-api-node": "^2.23.0",
+    "shopify-token": "^4.0.0",
     "typescript": "^3.6.2",
     "uuid": "^3.3.3",
     "winston": "^3.2.1"
