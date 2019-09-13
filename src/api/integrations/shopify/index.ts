@@ -14,10 +14,11 @@ const router: Router = Router()
 
 export class ShopifyIntegration implements Integration {
   initialize() {
+    initializeShopifyCron()
+
     DB.Models.ShopifyAuth.find({}, (err: any, res: IShopifyAuth[]) => {
       res.map(async a => {
         let accessToken = a.accessToken || await getAccessTokenFromShop(a.shop) || ''
-        initializeShopifyCron({ accessToken, shopName: a.shop })
       })
     })
   }
