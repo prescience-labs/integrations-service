@@ -29,6 +29,7 @@ interface IAccessTokenResponse {
 
 router.get('/start', async (req: Request, res: Response) => {
   try {
+    logger.info('hello there!')
     const shop: string = req.query.shop
     const hmac: string = req.query.hmac
     const redirectUri: string = `${settings.baseUrl}/integrations/shopify/oauth/redirect`
