@@ -4,7 +4,6 @@ import { Request, Response, Router } from 'express'
 import { DB } from '../../../config/db'
 import { logger } from '../../../config/logger'
 import { settings } from '../../../config/settings'
-import ShopifyAuth from 'shopify-token'
 import { createWebhook } from './helpers/webhooks'
 const router: Router = Router()
 
@@ -101,7 +100,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {
-    res.redirect(`https://${shop}/admin`)
+    res.redirect(`https://app.dataintel.ai`)
   }
 })
 
