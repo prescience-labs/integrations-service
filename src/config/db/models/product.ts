@@ -18,8 +18,8 @@ export class Product {
   constructor() {
     const schema: Schema = new Schema(
       {
-        title: { type: String, required: true },
-        image: { type: String, required: false },
+        title: { type: String },
+        image: { type: String },
         shopName: { type: String, required: true },
         productId: { type: String, required: true },
       },
