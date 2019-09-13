@@ -41,7 +41,7 @@ export class ShopifyWebhookManager {
         )
         logger.info(`webhook ${webhook.topic} saved`)
       } catch (e) {
-        logger.error('error creating webhook', e)
+        logger.error('error creating webhook: ', e)
       }
 
     })

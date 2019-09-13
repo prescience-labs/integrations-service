@@ -14,6 +14,7 @@ const scopesList: string[] = [
   'read_orders',
   'read_order_edits',
   'read_product_listings',
+  'read_products'
 ]
 const scopes: string = scopesList.join(',')
 
