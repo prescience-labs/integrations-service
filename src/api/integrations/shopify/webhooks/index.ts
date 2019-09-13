@@ -17,10 +17,12 @@ const router = Router()
 router.post('/order', (req: Request, res: Response) => {
   console.log('order updated', req.body)
   const order: Shopify.IOrder = req.body as Shopify.IOrder
+  res.sendStatus(200)
 })
 
 router.all('/product', (req: Request, res: Response) => {
   logger.info('product updated', req.body)
+  res.sendStatus(200)
 })
 
 router.get('/', (req: Request, res: Response) => {
