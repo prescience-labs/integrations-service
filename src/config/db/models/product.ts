@@ -34,3 +34,5 @@ export class Product {
     }
   }
 }
+
+export const product = new Product()

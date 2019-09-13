@@ -9,9 +9,9 @@ declare interface IShopifyAuth extends Document {
   meta?: any
 }
 
-export interface ShopifyAuthModel extends Model<IShopifyAuth> {}
+export interface ShopifyAuthModel extends Model<IShopifyAuth> { }
 
-export class ShopifyAuth {
+class ShopifyAuth {
   private _model: Model<IShopifyAuth>
 
   constructor() {
@@ -34,3 +34,5 @@ export class ShopifyAuth {
     return this._model
   }
 }
+
+export const shopifyAuth = new ShopifyAuth()

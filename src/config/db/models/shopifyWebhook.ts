@@ -39,3 +39,5 @@ export class ShopifyWebhook {
     return this._model
   }
 }
+
+export const shopifyWebhook = new ShopifyWebhook()

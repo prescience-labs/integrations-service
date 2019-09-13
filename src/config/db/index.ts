@@ -2,9 +2,9 @@ import { connect, connection, Connection } from 'mongoose'
 import { logger } from '../logger'
 import { settings } from '../settings'
 
-import { ShopifyAuth, ShopifyAuthModel } from './models/shopifyAuth'
-import { ShopifyWebhook, ShopifyWebhookModel } from './models/shopifyWebhook'
-import { Order, OrderModel } from './models/order'
+import { ShopifyAuthModel, shopifyAuth } from './models/shopifyAuth'
+import { ShopifyWebhookModel, shopifyWebhook } from './models/shopifyWebhook'
+import { OrderModel, order } from './models/order'
 
 declare interface IModels {
   ShopifyAuth: ShopifyAuthModel
@@ -34,9 +34,9 @@ export class DB {
 
     this._models = {
       // initialize all models
-      ShopifyAuth: new ShopifyAuth().model,
-      ShopifyWebhook: new ShopifyWebhook().model,
-      Order: new Order().model
+      ShopifyAuth: shopifyAuth.model,
+      ShopifyWebhook: shopifyWebhook.model,
+      Order: order.model
     }
   }
 
