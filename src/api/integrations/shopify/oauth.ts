@@ -96,7 +96,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {
-    res.redirect(`https://${shop}/data-intel`)
+    res.redirect(`https://${shop}/admin/apps/data-intel`)
   }
 })
 
