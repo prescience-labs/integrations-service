@@ -5,6 +5,10 @@ export interface Integration {
   initialize: () => void
 }
 
+export const VENDORS = {
+  shopify: 'shopify',
+}
+
 const router: Router = Router()
 
 router.use('/shopify', shopifyRouter)

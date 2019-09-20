@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express'
-import { router as oauthRouter } from './oauth'
+import { router as oauthRouter } from './auth'
 import { router as webhookRouter } from './webhooks'
 import Shopify = require('shopify-api-node')
 import { getAccessTokenFromShop } from './helpers/getAccessTokenFromShop'

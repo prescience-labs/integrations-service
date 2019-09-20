@@ -6,6 +6,8 @@ import { logger } from '../../../config/logger'
 import { settings } from '../../../config/settings'
 import { ShopifyWebhookManager } from './webhooks/WebhookManager'
 import { updateStore } from './initialize'
+import dataIntelSdk from '../dataIntelSdk'
+import { VENDORS } from '..'
 
 const router: Router = Router()
 
@@ -16,7 +18,7 @@ const scopesList: string[] = [
   'read_orders',
   'read_order_edits',
   'read_product_listings',
-  'read_products'
+  'read_products',
 ]
 const scopes: string = scopesList.join(',')
 
@@ -32,9 +34,7 @@ interface IAccessTokenResponse {
 
 router.get('/start', async (req: Request, res: Response) => {
   try {
-    logger.info('hello there!')
     const shop: string = req.query.shop
-    const hmac: string = req.query.hmac
     const redirectUri: string = `${settings.baseUrl}/integrations/shopify/oauth/redirect`
     const nonce: string = uuid4()
 
@@ -58,7 +58,6 @@ router.get('/start', async (req: Request, res: Response) => {
 
 router.get('/redirect', async (req: Request, res: Response) => {
   const authorizationCode: string = req.query.code
-  const hmac: string = req.query.hmac
   const nonce: string = req.query.state
   const shop: string = req.query.shop
 
@@ -81,22 +80,25 @@ router.get('/redirect', async (req: Request, res: Response) => {
       code: authorizationCode,
     }
 
-    logger.info(`POST ${authTokenUrl}`)
     logger.info(authTokenPostData)
     const result: IAccessTokenResponse = await Axios.post(
       authTokenUrl,
       authTokenPostData,
     )
-    logger.debug('Response:')
-    logger.debug(result.data)
 
     await shopifyAuth.updateOne({
       accessToken: result.data.access_token,
       scope: result.data.scope,
       meta: result.data,
     })
+
     new ShopifyWebhookManager(shop).init()
     updateStore({ accessToken: result.data.access_token, shopName: shop })
+    dataIntelSdk.createVendor({
+      integrationId: shop,
+      name: shop,
+      integrationType: VENDORS.shopify,
+    })
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {
@@ -106,7 +108,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
 
 router.get('/', (req: Request, res: Response) => {
   res.json({
-    loc: '/integrations/shopify/oauth'
+    loc: '/integrations/shopify/oauth',
   })
 })
 

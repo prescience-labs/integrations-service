@@ -2,14 +2,16 @@ import { Document, model, Model, Schema } from 'mongoose'
 import Shopify = require('shopify-api-node')
 
 declare interface IOrder {
-  email: string,
-  orderId: number,
-  shopName: string,
+  customerEmail: string
+  orderId: number
+  shopName: string
+  customerPhone: string
+  productIds: string[] | number[]
 }
 
-declare interface IOrderDocument extends IOrder, Document { }
+declare interface IOrderDocument extends IOrder, Document {}
 
-export interface OrderModel extends Model<IOrderDocument> { }
+export interface OrderModel extends Model<IOrderDocument> {}
 
 export class Order {
   private _model: Model<IOrderDocument>
@@ -18,8 +20,8 @@ export class Order {
     const schema: Schema = new Schema(
       {
         email: { type: String },
-        orderId: { type: String, },
-        shopName: { type: String }
+        orderId: { type: String },
+        shopName: { type: String },
       },
       { timestamps: true },
     )
@@ -31,12 +33,16 @@ export class Order {
     return this._model
   }
 
-  public static serializeFromShopify(input: Shopify.IOrder, shopName: string): IOrder {
-
+  public static serializeFromShopify(
+    input: Shopify.IOrder,
+    shopName: string,
+  ): IOrder {
     return {
-      email: input.email,
+      customerEmail: input.email,
       orderId: input.id,
       shopName,
+      customerPhone: input.phone,
+      productIds: input.line_items.map((i) => i.id),
     }
   }
 }
