@@ -94,11 +94,14 @@ router.get('/redirect', async (req: Request, res: Response) => {
 
     new ShopifyWebhookManager(shop).init()
     updateStore({ accessToken: result.data.access_token, shopName: shop })
-    dataIntelSdk.createVendor({
-      integrationId: shop,
-      name: shop,
-      integrationType: VENDORS.shopify,
-    })
+    dataIntelSdk
+      .createVendor({
+        integrationId: shop,
+        name: shop,
+        integrationType: VENDORS.shopify,
+      })
+      .then((r) => logger.error('succesfully updated review service'))
+      .catch((e) => logger.error(e.message))
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {

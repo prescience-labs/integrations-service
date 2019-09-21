@@ -5,7 +5,7 @@
   "scripts": {
     "prestart": "tsc",
     "start": "node dist/app.js",
-    "start:dev": "nodemon",
+    "start:dev": " nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'node --inspect=5858 -r ts-node/register' src/app.ts",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\""
   },

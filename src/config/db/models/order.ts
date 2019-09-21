@@ -3,10 +3,10 @@ import Shopify = require('shopify-api-node')
 
 declare interface IOrder {
   customerEmail: string
-  orderId: number
+  orderId: string
   shopName: string
   customerPhone: string
-  productIds: string[] | number[]
+  productIds: string[]
 }
 
 declare interface IOrderDocument extends IOrder, Document {}
@@ -39,10 +39,12 @@ export class Order {
   ): IOrder {
     return {
       customerEmail: input.email,
-      orderId: input.id,
+      orderId: input.id.toString(),
       shopName,
       customerPhone: input.phone,
-      productIds: input.line_items.map((i) => i.id),
+      productIds: input.line_items.map(
+        (i) => (i.product_id && i.product_id.toString()) || '',
+      ),
     }
   }
 }

@@ -13,12 +13,11 @@ app.use(bodyParser.json())
 
 app.use('/', router)
 
-const integrations: Integration[] = [
-  new ShopifyIntegration()
-]
+const integrations: Integration[] = [new ShopifyIntegration()]
 
-integrations.map(i => i.initialize())
+integrations.map((i) => i.initialize())
 
 app.listen(settings.port, async () => {
   logger.info(`App listening on port ${settings.port}!`)
+  logger.debug(`Base URL: ${settings.baseUrl}`)
 })
