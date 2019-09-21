@@ -1,4 +1,4 @@
-import { settings } from '../../../config/settings'
+import { settings } from '../config/settings'
 import Axios from 'axios'
 
 interface ICreateVendorParams {

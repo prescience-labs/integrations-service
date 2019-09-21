@@ -1,6 +1,6 @@
 import { ICreateWebhook } from "shopify-api-node";
-import OrderWebhooks from './Order'
-import ProductWebhooks from './Product'
+import OrderWebhooks from './Order/definitions'
+import ProductWebhooks from './Product/definitions'
 import Shopify = require("shopify-api-node");
 import { getAccessTokenFromShop } from "../helpers/getAccessTokenFromShop";
 import { logger } from "../../../../config/logger";

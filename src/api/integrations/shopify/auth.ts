@@ -6,7 +6,7 @@ import { logger } from '../../../config/logger'
 import { settings } from '../../../config/settings'
 import { ShopifyWebhookManager } from './webhooks/WebhookManager'
 import { updateStore } from './initialize'
-import dataIntelSdk from '../dataIntelSdk'
+import dataIntelSdk from '../../../dataIntelSdk'
 import { VENDORS } from '..'
 
 const router: Router = Router()
@@ -100,7 +100,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
         name: shop,
         integrationType: VENDORS.shopify,
       })
-      .then((r) => logger.error('succesfully updated review service'))
+      .then((r) => logger.info('successfully added vendor to review service'))
       .catch((e) => logger.error(e.message))
   } catch (e) {
     logger.error((<Error>e).message)
