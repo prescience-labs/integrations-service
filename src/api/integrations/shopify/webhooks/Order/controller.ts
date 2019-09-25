@@ -10,7 +10,7 @@ import { DB } from '../../../../../config/db'
 
 export function orderUpdateController(req: Request, res: Response) {
   const shopName = req.params.shopName
-  logger.debug('Order webhook received')
+  logger.verbose('Order webhook received')
   const rawOrder: Shopify.IOrder = req.body as Shopify.IOrder
   const serializedOrder = Order.serializeFromShopify(rawOrder, shopName)
 
@@ -21,60 +21,64 @@ export function orderUpdateController(req: Request, res: Response) {
     if (!accessToken) {
       return reject()
     }
+    try {
+      //TODO: Upsert a product
 
-    //TODO: Upsert a product
+      const store = new Shopify({
+        accessToken: accessToken,
+        shopName,
+      })
 
-    const store = new Shopify({
-      accessToken: accessToken,
-      shopName,
-    })
+      const vendor = await dataIntelSdk.getVendor({
+        vendorId: shopName,
+        vendorType: VENDORS.shopify,
+      })
 
-    const vendor = await dataIntelSdk.getVendor({
-      vendorId: shopName,
-      vendorType: VENDORS.shopify,
-    })
+      const products = rawOrder.line_items
+        .map((i) => i.product_id)
+        .map(async (item) => {
+          if (item) {
+            const product = await store.product.get(item)
+            const serializedProduct = Product.serializeFromShopify(
+              product,
+              shopName,
+            )
+            return dataIntelSdk
+              .createProduct({
+                vendorId: vendor.id,
+                productId: serializedProduct.productId,
+                productName: serializedProduct.title,
+              })
+              .catch((e) => null)
+          }
+          return null
+        })
 
-    const products = rawOrder.line_items
-      .map((i) => i.product_id)
-      .map(async (item) => {
-        if (item) {
-          const product = await store.product.get(item)
-          const serializedProduct = Product.serializeFromShopify(
-            product,
-            shopName,
+      // wait until all the products have been created
+      await Promise.all(products)
+
+      // finally, make the call to the review service to create the order
+      dataIntelSdk
+        .createOrder({
+          vendorTransactionId: serializedOrder.orderId,
+          customerEmail: serializedOrder.customerEmail,
+          vendorIntegrationId: shopName,
+          customerPhone: serializedOrder.customerPhone,
+          vendorIntegrationType: VENDORS.shopify,
+          vendorProductIds: serializedOrder.productIds,
+        })
+        .catch((e) => {
+          logger.error(
+            (e &&
+              e.response &&
+              e.response.data &&
+              JSON.stringify(e.response.data)) ||
+              'Error updating the review service with an order',
           )
-          return dataIntelSdk.createProduct({
-            vendorId: vendor.id,
-            productId: serializedProduct.productId,
-            productName: serializedProduct.title,
-          })
-        }
-        return null
-      })
-
-    // wait until all the products have been created
-    await Promise.all(products)
-
-    // finally, make the call to the review service to create the order
-    dataIntelSdk
-      .createOrder({
-        vendorTransactionId: serializedOrder.orderId,
-        customerEmail: serializedOrder.customerEmail,
-        vendorIntegrationId: shopName,
-        customerPhone: serializedOrder.customerPhone,
-        vendorIntegrationType: VENDORS.shopify,
-        vendorProductIds: serializedOrder.productIds,
-      })
-      .catch((e) => {
-        logger.error(
-          (e &&
-            e.response &&
-            e.response.data &&
-            JSON.stringify(e.response.data)) ||
-            'Error updating the review service with an order',
-        )
-      })
-
+        })
+    } catch (e) {
+      logger.error(e.message)
+    }
     logger.info('updated review service')
   }).catch((e) => {
     logger.error('Something went wrong while updating the review service')
