@@ -8,6 +8,7 @@ import { ShopifyWebhookManager } from './webhooks/WebhookManager'
 import { updateStore } from './initialize'
 import dataIntelSdk from '../../../dataIntelSdk'
 import { VENDORS } from '..'
+import Shopify = require('shopify-api-node')
 
 const router: Router = Router()
 
@@ -94,10 +95,13 @@ router.get('/redirect', async (req: Request, res: Response) => {
 
     new ShopifyWebhookManager(shop).init()
     updateStore({ accessToken: result.data.access_token, shopName: shop })
+    const shopify = new Shopify({ accessToken: result.data.access_token, shopName: shop })
+    const shopifyStore = await shopify.shop.get()
+    logger.info(shopifyStore)
     dataIntelSdk
       .createVendor({
         integrationId: shop,
-        name: shop,
+        name: shopifyStore.name,
         integrationType: VENDORS.shopify,
       })
       .then((r) => logger.info('successfully added vendor to review service'))
