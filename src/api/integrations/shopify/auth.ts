@@ -5,9 +5,10 @@ import { DB } from '../../../config/db'
 import { logger } from '../../../config/logger'
 import { settings } from '../../../config/settings'
 import { ShopifyWebhookManager } from './webhooks/WebhookManager'
-import { updateStore } from './initialize'
+import { updateStore, getStore } from './initialize'
 import dataIntelSdk from '../../../dataIntelSdk'
 import { VENDORS } from '..'
+import AuthServiceSdk from '../../../dataIntelSdk/authService'
 
 const router: Router = Router()
 
@@ -19,6 +20,8 @@ const scopesList: string[] = [
   'read_order_edits',
   'read_product_listings',
   'read_products',
+  'read_script_tags',
+  'write_script_tags',
 ]
 const scopes: string = scopesList.join(',')
 
@@ -59,21 +62,23 @@ router.get('/start', async (req: Request, res: Response) => {
 router.get('/redirect', async (req: Request, res: Response) => {
   const authorizationCode: string = req.query.code
   const nonce: string = req.query.state
-  const shop: string = req.query.shop
+  const shopName: string = req.query.shop
+
+  let token = ''
 
   try {
     const shopifyAuth = await DB.Models.ShopifyAuth.findOneAndUpdate(
-      { shop, nonce },
+      { shop: shopName, nonce },
       { authorizationCode },
     )
 
     if (shopifyAuth == null) {
       throw Error(
-        `The shopify shop ${shop} doesn't exist in the database, or the nonce was invalid.`,
+        `The shopify shop ${shopName} doesn't exist in the database, or the nonce was invalid.`,
       )
     }
 
-    const authTokenUrl: string = `https://${shop}/admin/oauth/access_token`
+    const authTokenUrl: string = `https://${shopName}/admin/oauth/access_token`
     const authTokenPostData: any = {
       client_id: settings.integrations.shopify.apiKey,
       client_secret: settings.integrations.shopify.apiSecretKey,
@@ -86,26 +91,47 @@ router.get('/redirect', async (req: Request, res: Response) => {
       authTokenPostData,
     )
 
+    const accessToken = result.data.access_token
+
     await shopifyAuth.updateOne({
-      accessToken: result.data.access_token,
+      accessToken: accessToken,
       scope: result.data.scope,
       meta: result.data,
     })
 
-    new ShopifyWebhookManager(shop).init()
-    updateStore({ accessToken: result.data.access_token, shopName: shop })
+    new ShopifyWebhookManager(shopName).init()
+    updateStore({ accessToken: result.data.access_token, shopName: shopName })
     dataIntelSdk
       .createVendor({
-        integrationId: shop,
-        name: shop,
+        integrationId: shopName,
+        name: shopName,
         integrationType: VENDORS.shopify,
       })
       .then((r) => logger.info('successfully added vendor to review service'))
       .catch((e) => logger.error(e.message))
+    const store = await getStore({ accessToken, shopName })
+    if (settings.integrations.shopify.staticSiteUrl) {
+      console.log(
+        'script location!!!!!',
+        settings.integrations.shopify.staticSiteUrl,
+      )
+      const script = await store.scriptTag.create({
+        event: 'onload',
+        src: settings.integrations.shopify.staticSiteUrl,
+      })
+      console.log(script)
+    }
+    const email = (await store.shop.get()).email
+    try {
+      AuthServiceSdk.createUser({ email })
+    } finally {
+      token = await AuthServiceSdk.forceLogIn({ email })
+    }
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {
-    res.redirect(`https://app.dataintel.ai`)
+    const redirectUrl = `http://localhost:3001/auth/callback?token=${token}`
+    res.redirect(redirectUrl)
   }
 })
 

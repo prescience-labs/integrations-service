@@ -4,6 +4,6 @@ import { CronJob } from 'cron';
 
 export default () => [
   new CronJob('0 */2 * * * *', () => {
-    Axios.get(settings.baseUrl)
+    // Axios.get(settings.baseUrl)
   }),
 ]

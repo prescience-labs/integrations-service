@@ -13,11 +13,16 @@ const _settings = () => {
     database: {
       mongoUri: process.env.MONGO_URI || '',
     },
-
+    authService: {
+      url: process.env.AUTH_SERVICE_BASE_URL,
+      secretKey: process.env.AUTH_SERVICE_SECRET_KEY,
+      clientId: process.env.AUTH_SERVICE_CLIENT_ID,
+    },
     integrations: {
       shopify: {
         apiKey: process.env.SHOPIFY_API_KEY || '',
         apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY || '',
+        staticSiteUrl: process.env.STATIC_FILE_URL
       },
     },
   }

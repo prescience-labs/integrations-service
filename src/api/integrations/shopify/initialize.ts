@@ -28,6 +28,6 @@ export const refreshOrders = async (params: IInitializeStore) => {
 
 }
 
-const getStore = ({ accessToken, shopName }: IInitializeStore) => {
+export const getStore = ({ accessToken, shopName }: IInitializeStore) => {
   return new Shopify({ accessToken, shopName });
 }
