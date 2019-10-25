@@ -123,11 +123,11 @@ router.get('/redirect', async (req: Request, res: Response) => {
       } catch (e) {
         logger.error(e)
       }
-      const token = await dataIntelSdk.forceToken({ email: shopifyStore.email })
-      res.redirect(`https://app.dataintel.ai/auth/callback?token=${token}`)
       shopifyAuth.initialized = true
       shopifyAuth.save()
     }
+    const token = await dataIntelSdk.forceToken({ email: shopifyStore.email })
+    res.redirect(`https://app.dataintel.ai/auth/callback?token=${token}`)
 
   } catch (e) {
     logger.error((<Error>e).message)
