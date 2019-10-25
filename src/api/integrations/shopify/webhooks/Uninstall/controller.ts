@@ -8,7 +8,6 @@ export function appUninstallController(req: Request, res: Response) {
   DB.Models.ShopifyAuth.findOneAndUpdate(
     { shop: shopName },
     { initialized: false },
-    { upsert: true }
   )
   res.sendStatus(200)
 }
