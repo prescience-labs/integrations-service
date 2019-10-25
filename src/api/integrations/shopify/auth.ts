@@ -82,7 +82,6 @@ router.get('/redirect', async (req: Request, res: Response) => {
       code: authorizationCode,
     }
 
-    logger.info(authTokenPostData)
     const result: IAccessTokenResponse = await Axios.post(
       authTokenUrl,
       authTokenPostData,
@@ -101,7 +100,6 @@ router.get('/redirect', async (req: Request, res: Response) => {
 
     const shopify = new Shopify({ accessToken, shopName: shop })
     const shopifyStore = await shopify.shop.get()
-    logger.info(shopifyStore)
     dataIntelSdk
       .createVendor({
         integrationId: shop,
@@ -115,12 +113,15 @@ router.get('/redirect', async (req: Request, res: Response) => {
       if (settings.integrations.shopify.staticFileUrl) {
         try {
           shopify.scriptTag.create({ src: `${settings.integrations.shopify.staticFileUrl}/index.js`, event: 'onload' })
-        } catch (e) { }
+        } catch (e) {
+          logger.error(e)
+        }
       }
       new ShopifyWebhookManager(shop).init()
       try {
         await dataIntelSdk.createUser({ email: shopifyStore.email })
       } catch (e) {
+        logger.error(e)
       } finally {
         const token = await dataIntelSdk.forceToken({ email: shopifyStore.email })
         res.redirect(`https://app.dataintel.ai/auth/callback?token=${token}`)
