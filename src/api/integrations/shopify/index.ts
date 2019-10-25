@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express'
 import { router as oauthRouter } from './auth'
 import { router as webhookRouter } from './webhooks'
+import { router as resourceRouter } from './resources'
 import Shopify = require('shopify-api-node')
 import { getAccessTokenFromShop } from './helpers/getAccessTokenFromShop'
 import { Integration } from '../'
@@ -24,6 +25,8 @@ export class ShopifyIntegration implements Integration {
 router.use('/oauth', oauthRouter)
 
 router.use('/webhook', webhookRouter)
+
+router.use('/resources', resourceRouter)
 
 router.get('/', async (req: Request, res: Response) => {
   res.json({

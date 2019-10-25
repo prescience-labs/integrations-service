@@ -20,7 +20,8 @@ const scopesList: string[] = [
   'read_order_edits',
   'read_product_listings',
   'read_products',
-]
+  'read_script_tags',
+  'write_script_tags']
 const scopes: string = scopesList.join(',')
 
 interface IAccessTokenResponse {
@@ -93,10 +94,19 @@ router.get('/redirect', async (req: Request, res: Response) => {
       meta: result.data,
     })
 
+    const accessToken = result.data.access_token
+
     new ShopifyWebhookManager(shop).init()
-    updateStore({ accessToken: result.data.access_token, shopName: shop })
+    updateStore({ accessToken, shopName: shop })
+
     const shopify = new Shopify({ accessToken: result.data.access_token, shopName: shop })
     const shopifyStore = await shopify.shop.get()
+    if (settings.integrations.shopify.staticFileUrl) {
+      try {
+        shopify.scriptTag.create({ src: `${settings.integrations.shopify.staticFileUrl}/index.js`, event: 'onload' })
+      } catch (e) { }
+    }
+
     logger.info(shopifyStore)
     dataIntelSdk
       .createVendor({
@@ -106,10 +116,17 @@ router.get('/redirect', async (req: Request, res: Response) => {
       })
       .then((r) => logger.info('successfully added vendor to review service'))
       .catch((e) => logger.error(e.message))
+    try {
+      await dataIntelSdk.createUser({ email: shopifyStore.email })
+    } catch (e) {
+    } finally {
+      const token = await dataIntelSdk.forceToken({ email: shopifyStore.email })
+      res.redirect(`https://app.dataintel.ai/auth/callback?token=${token}`)
+    }
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {
-    res.redirect(`https://app.dataintel.ai`)
+    res.status(500)
   }
 })
 

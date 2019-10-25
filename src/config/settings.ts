@@ -10,6 +10,9 @@ const _settings = () => {
     baseUrl: process.env.BASE_URL || `http://localhost:3000`,
     logLevel: process.env.LOG_LEVEL || 'debug',
     reviewServiceBaseUrl: process.env.REVIEW_SERVICE_BASE_URL,
+    authServiceBaseUrl: process.env.AUTH_SERVICE_BASE_URL,
+    authClientId: process.env.AUTH_CLIENT_ID,
+    authClientSecret: process.env.AUTH_CLIENT_SECRET,
     database: {
       mongoUri: process.env.MONGO_URI || '',
     },
@@ -18,6 +21,7 @@ const _settings = () => {
       shopify: {
         apiKey: process.env.SHOPIFY_API_KEY || '',
         apiSecretKey: process.env.SHOPIFY_API_SECRET_KEY || '',
+        staticFileUrl: process.env.STATIC_FILE_URL
       },
     },
   }

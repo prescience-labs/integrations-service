@@ -4,15 +4,15 @@ import { orderUpdateController } from './Order/controller'
 import { productUpdateController } from './Product/controller'
 
 export enum WebhookAddresses {
-  order = '/order',
-  product = '/product',
+  order = 'order',
+  product = 'product',
 }
 
 export const getFullyQualifiedWebhookAddress = (
   webhook: keyof typeof WebhookAddresses,
   shopName: string,
 ) => {
-  return `${settings.baseUrl}/integrations/shopify/webhook${WebhookAddresses[webhook]}/${shopName}`
+  return `${settings.baseUrl}/integrations/shopify/webhook/${WebhookAddresses[webhook]}/${shopName}`
 }
 
 const router = Router()
