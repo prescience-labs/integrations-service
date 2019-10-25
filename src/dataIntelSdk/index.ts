@@ -39,6 +39,10 @@ interface IProduct {
   id: string
 }
 
+interface ITransaction {
+  id: string
+}
+
 interface ICreateOrderParams {
   customerEmail: string
   customerPhone: string
@@ -147,6 +151,22 @@ class DataIntelSdk {
       }
     } catch (e) {
       throw e
+    }
+  }
+  async getTransactionById({ id }: ITransaction) {
+    try {
+      const { data: transaction } = await this.axios.get(`${settings.reviewServiceBaseUrl}/transactions/${id}`)
+      return transaction
+    } catch (e) {
+      console.log(e)
+    }
+  }
+  async createReview(review: any) {
+    try {
+      const { data: reviewResponse } = await this.axios.post(`${settings.reviewServiceBaseUrl}/reviews`, review)
+      return reviewResponse
+    } catch (e) {
+      console.log(e)
     }
   }
 }
