@@ -1,6 +1,7 @@
 import { ICreateWebhook } from "shopify-api-node";
 import OrderWebhooks from './Order/definitions'
 import ProductWebhooks from './Product/definitions'
+import UninstallWebhooks from './Uninstall/definitions'
 import Shopify = require("shopify-api-node");
 import { getAccessTokenFromShop } from "../helpers/getAccessTokenFromShop";
 import { logger } from "../../../../config/logger";
@@ -10,7 +11,7 @@ export class ShopifyWebhookManager {
   private webhooks: ICreateWebhook[]
   private shop: string
   constructor(shop: string) {
-    this.webhooks = [...OrderWebhooks(shop), ...ProductWebhooks(shop)]
+    this.webhooks = [...OrderWebhooks(shop), ...ProductWebhooks(shop), ...UninstallWebhooks(shop)]
     this.shop = shop
   }
   private async getStore() {
