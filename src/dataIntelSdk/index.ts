@@ -1,5 +1,6 @@
 import { settings } from '../config/settings'
 import Axios from 'axios'
+import uuid = require('uuid')
 
 interface ICreateVendorParams {
   integrationType: string
@@ -34,6 +35,14 @@ interface ISerializedVendor {
   id: string
 }
 
+interface IProduct {
+  id: string
+}
+
+interface ITransaction {
+  id: string
+}
+
 interface ICreateOrderParams {
   customerEmail: string
   customerPhone: string
@@ -42,18 +51,31 @@ interface ICreateOrderParams {
   vendorProductIds: string[] | number[]
   vendorTransactionId: string
 }
+interface IUpdateVendor {
+  vendorId: string
+  vendor: ICreateVendorParams
+}
+interface IAuth {
+  email: string;
+  password?: string;
+}
 class DataIntelSdk {
+  private axios = Axios.create({
+    headers: {
+      "Authorization": `Basic ${settings.authClientId}:${settings.authClientSecret}`
+    }
+  })
   private reviewServiceBaseUrl: string = settings.reviewServiceBaseUrl || ''
   createVendor({ integrationType, integrationId, name }: ICreateVendorParams) {
-    return Axios.post(`${this.reviewServiceBaseUrl}/v1/vendors`, {
+    return this.axios.post(`${this.reviewServiceBaseUrl}/vendors`, {
       name,
       integrations_type: integrationType,
       integrations_id: integrationId,
     })
   }
   createProduct({ vendorId, productId, productName }: ICreateProductParams) {
-    return Axios.post(
-      `${this.reviewServiceBaseUrl}/v1/vendors/${vendorId}/products`,
+    return this.axios.post(
+      `${this.reviewServiceBaseUrl}/vendors/${vendorId}/products`,
       {
         name: productName,
         vendor_product_id: productId,
@@ -68,8 +90,8 @@ class DataIntelSdk {
     vendorProductIds,
     vendorTransactionId,
   }: ICreateOrderParams) {
-    return Axios.post(
-      `${this.reviewServiceBaseUrl}/v1/transactions/comprehensive`,
+    return this.axios.post(
+      `${this.reviewServiceBaseUrl}/transactions/comprehensive`,
       {
         customer_email: customerEmail,
         customer_phone: customerPhone,
@@ -84,8 +106,8 @@ class DataIntelSdk {
     vendorType,
     vendorId,
   }: IGetVendorIdParams): Promise<ISerializedVendor> {
-    const { data } = await Axios.get(
-      `${settings.reviewServiceBaseUrl}/v1/vendors?integrations_type=${vendorType}&integrations_id=${vendorId}`,
+    const { data } = await this.axios.get(
+      `${settings.reviewServiceBaseUrl}/vendors?integrations_type=${vendorType}&integrations_id=${vendorId}`,
     )
     if ((data.results as IVendor[]).length != 1) {
       throw new Error(
@@ -99,6 +121,53 @@ class DataIntelSdk {
       integrationType: rawVendor.integrations_type,
       name: rawVendor.name,
     } as ISerializedVendor
+  }
+  async updateVendor({
+    vendorId,
+    vendor,
+  }: IUpdateVendor) {
+    const { data } = await this.axios.put(`${settings.reviewServiceBaseUrl}/vendors/${vendorId}`, vendor)
+  }
+  async createUser({ email, password = uuid.v4() }: IAuth) {
+    const { data } = await this.axios.post(`${settings}`, { email, password })
+  }
+  async forceToken({ email }: IAuth) {
+    const { data: { token } } = await this.axios.post(`${settings.authServiceBaseUrl}/token/force`, { email })
+    return token
+  }
+  async logIn({ email, password }: IAuth) {
+    const { data: { token } } = await this.axios.post(`${settings.authServiceBaseUrl}/token`, { email, password })
+    return token
+  }
+  async getReviewsByProductId({ id }: IProduct) {
+    const { data: { results } } = await this.axios.get(`${settings.reviewServiceBaseUrl}/products/${id}/reviews`)
+    return results
+  }
+  async getProductById({ id }: IProduct) {
+    try {
+      const { data: { results } } = await this.axios.get(`${settings.reviewServiceBaseUrl}/products?vendor_product_id=${id}`)
+      if (results && results[0]) {
+        return results[0]
+      }
+    } catch (e) {
+      throw e
+    }
+  }
+  async getTransactionById({ id }: ITransaction) {
+    try {
+      const { data: transaction } = await this.axios.get(`${settings.reviewServiceBaseUrl}/transactions/${id}`)
+      return transaction
+    } catch (e) {
+      console.log(e)
+    }
+  }
+  async createReview(review: any) {
+    try {
+      const { data: reviewResponse } = await this.axios.post(`${settings.reviewServiceBaseUrl}/reviews`, review)
+      return reviewResponse
+    } catch (e) {
+      console.log(e)
+    }
   }
 }
 

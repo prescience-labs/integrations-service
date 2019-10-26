@@ -6,11 +6,12 @@ import { settings } from './config/settings'
 import bodyParser from 'body-parser'
 import { Integration } from './api/integrations'
 import { ShopifyIntegration } from './api/integrations/shopify'
+import cors from 'cors'
 
 const app: express.Application = express()
 
 app.use(bodyParser.json())
-
+app.use(cors())
 app.use('/', router)
 
 const integrations: Integration[] = [new ShopifyIntegration()]

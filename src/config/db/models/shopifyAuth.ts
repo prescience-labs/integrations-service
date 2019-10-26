@@ -6,7 +6,8 @@ export interface IShopifyAuth extends Document {
   authorizationCode?: string
   accessToken?: string
   scope?: string
-  meta?: any
+  meta?: any;
+  initialized?: boolean
 }
 
 export interface ShopifyAuthModel extends Model<IShopifyAuth> { }
@@ -23,6 +24,7 @@ class ShopifyAuth {
         accessToken: { type: String },
         scope: { type: String },
         meta: { type: Schema.Types.Mixed },
+        initialized: { type: Boolean, required: false }
       },
       { timestamps: true },
     )

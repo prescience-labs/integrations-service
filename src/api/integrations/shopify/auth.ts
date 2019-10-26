@@ -8,7 +8,7 @@ import { ShopifyWebhookManager } from './webhooks/WebhookManager'
 import { updateStore, getStore } from './initialize'
 import dataIntelSdk from '../../../dataIntelSdk'
 import { VENDORS } from '..'
-import AuthServiceSdk from '../../../dataIntelSdk/authService'
+import Shopify = require('shopify-api-node')
 
 const router: Router = Router()
 
@@ -21,8 +21,7 @@ const scopesList: string[] = [
   'read_product_listings',
   'read_products',
   'read_script_tags',
-  'write_script_tags',
-]
+  'write_script_tags']
 const scopes: string = scopesList.join(',')
 
 interface IAccessTokenResponse {
@@ -85,53 +84,57 @@ router.get('/redirect', async (req: Request, res: Response) => {
       code: authorizationCode,
     }
 
-    logger.info(authTokenPostData)
     const result: IAccessTokenResponse = await Axios.post(
       authTokenUrl,
       authTokenPostData,
     )
 
-    const accessToken = result.data.access_token
+    const { access_token: accessToken, scope } = result.data
 
     await shopifyAuth.updateOne({
-      accessToken: accessToken,
-      scope: result.data.scope,
+      accessToken,
+      scope,
       meta: result.data,
     })
 
-    new ShopifyWebhookManager(shopName).init()
-    updateStore({ accessToken: result.data.access_token, shopName: shopName })
+
+    updateStore({ accessToken, shopName: shop })
+
+    const shopify = new Shopify({ accessToken, shopName: shop })
+    const shopifyStore = await shopify.shop.get()
     dataIntelSdk
       .createVendor({
-        integrationId: shopName,
-        name: shopName,
+        integrationId: shop,
+        name: shopifyStore.name,
         integrationType: VENDORS.shopify,
       })
       .then((r) => logger.info('successfully added vendor to review service'))
       .catch((e) => logger.error(e.message))
-    const store = await getStore({ accessToken, shopName })
-    if (settings.integrations.shopify.staticSiteUrl) {
-      console.log(
-        'script location!!!!!',
-        settings.integrations.shopify.staticSiteUrl,
-      )
-      const script = await store.scriptTag.create({
-        event: 'onload',
-        src: settings.integrations.shopify.staticSiteUrl,
-      })
-      console.log(script)
+
+    if (!shopifyAuth.initialized) {
+      if (settings.integrations.shopify.staticFileUrl) {
+        try {
+          shopify.scriptTag.create({ src: `${settings.integrations.shopify.staticFileUrl}/index.js`, event: 'onload' })
+        } catch (e) {
+          logger.error(e)
+        }
+      }
+      new ShopifyWebhookManager(shop).init()
+      try {
+        await dataIntelSdk.createUser({ email: shopifyStore.email })
+      } catch (e) {
+        logger.error(e)
+      }
+      shopifyAuth.initialized = true
+      shopifyAuth.save()
     }
-    const email = (await store.shop.get()).email
-    try {
-      AuthServiceSdk.createUser({ email })
-    } finally {
-      token = await AuthServiceSdk.forceLogIn({ email })
-    }
+    const token = await dataIntelSdk.forceToken({ email: shopifyStore.email })
+    res.redirect(`https://app.dataintel.ai/auth/callback?token=${token}`)
+
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {
-    const redirectUrl = `http://localhost:3001/auth/callback?token=${token}`
-    res.redirect(redirectUrl)
+    res.status(500)
   }
 })
 
