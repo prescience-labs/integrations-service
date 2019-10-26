@@ -61,23 +61,23 @@ router.get('/start', async (req: Request, res: Response) => {
 router.get('/redirect', async (req: Request, res: Response) => {
   const authorizationCode: string = req.query.code
   const nonce: string = req.query.state
-  const shopName: string = req.query.shop
+  const shop: string = req.query.shop
 
   let token = ''
 
   try {
     const shopifyAuth = await DB.Models.ShopifyAuth.findOneAndUpdate(
-      { shop: shopName, nonce },
+      { shop, nonce },
       { authorizationCode },
     )
 
     if (shopifyAuth == null) {
       throw Error(
-        `The shopify shop ${shopName} doesn't exist in the database, or the nonce was invalid.`,
+        `The shopify shop ${shop} doesn't exist in the database, or the nonce was invalid.`,
       )
     }
 
-    const authTokenUrl: string = `https://${shopName}/admin/oauth/access_token`
+    const authTokenUrl: string = `https://${shop}/admin/oauth/access_token`
     const authTokenPostData: any = {
       client_id: settings.integrations.shopify.apiKey,
       client_secret: settings.integrations.shopify.apiSecretKey,
