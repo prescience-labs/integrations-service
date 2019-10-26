@@ -56,16 +56,21 @@ interface IUpdateVendor {
   vendor: ICreateVendorParams
 }
 interface IAuth {
-  email: string;
-  password?: string;
+  email: string
+  password?: string
 }
 class DataIntelSdk {
-  private axios = Axios.create({
-    headers: {
-      "Authorization": `Basic ${settings.authClientId}:${settings.authClientSecret}`
-    }
-  })
+  private axios = Axios.create({})
   private reviewServiceBaseUrl: string = settings.reviewServiceBaseUrl || ''
+  constructor() {
+    this.axios.interceptors.request.use((config) => ({
+      ...config,
+      headers: {
+        ...config.headers,
+        Authorization: `Basic ${settings.authClientId}:${settings.authClientSecret}`,
+      },
+    }))
+  }
   createVendor({ integrationType, integrationId, name }: ICreateVendorParams) {
     return this.axios.post(`${this.reviewServiceBaseUrl}/vendors`, {
       name,
@@ -122,30 +127,47 @@ class DataIntelSdk {
       name: rawVendor.name,
     } as ISerializedVendor
   }
-  async updateVendor({
-    vendorId,
-    vendor,
-  }: IUpdateVendor) {
-    const { data } = await this.axios.put(`${settings.reviewServiceBaseUrl}/vendors/${vendorId}`, vendor)
+  async updateVendor({ vendorId, vendor }: IUpdateVendor) {
+    const { data } = await this.axios.put(
+      `${settings.reviewServiceBaseUrl}/vendors/${vendorId}`,
+      vendor,
+    )
   }
   async createUser({ email, password = uuid.v4() }: IAuth) {
     const { data } = await this.axios.post(`${settings}`, { email, password })
   }
   async forceToken({ email }: IAuth) {
-    const { data: { token } } = await this.axios.post(`${settings.authServiceBaseUrl}/token/force`, { email })
+    const {
+      data: { token },
+    } = await this.axios.post(`${settings.authServiceBaseUrl}/token/force`, {
+      email,
+    })
     return token
   }
   async logIn({ email, password }: IAuth) {
-    const { data: { token } } = await this.axios.post(`${settings.authServiceBaseUrl}/token`, { email, password })
+    const {
+      data: { token },
+    } = await this.axios.post(`${settings.authServiceBaseUrl}/token`, {
+      email,
+      password,
+    })
     return token
   }
   async getReviewsByProductId({ id }: IProduct) {
-    const { data: { results } } = await this.axios.get(`${settings.reviewServiceBaseUrl}/products/${id}/reviews`)
+    const {
+      data: { results },
+    } = await this.axios.get(
+      `${settings.reviewServiceBaseUrl}/products/${id}/reviews`,
+    )
     return results
   }
   async getProductById({ id }: IProduct) {
     try {
-      const { data: { results } } = await this.axios.get(`${settings.reviewServiceBaseUrl}/products?vendor_product_id=${id}`)
+      const {
+        data: { results },
+      } = await this.axios.get(
+        `${settings.reviewServiceBaseUrl}/products?vendor_product_id=${id}`,
+      )
       if (results && results[0]) {
         return results[0]
       }
@@ -155,7 +177,9 @@ class DataIntelSdk {
   }
   async getTransactionById({ id }: ITransaction) {
     try {
-      const { data: transaction } = await this.axios.get(`${settings.reviewServiceBaseUrl}/transactions/${id}`)
+      const { data: transaction } = await this.axios.get(
+        `${settings.reviewServiceBaseUrl}/transactions/${id}`,
+      )
       return transaction
     } catch (e) {
       console.log(e)
@@ -163,7 +187,10 @@ class DataIntelSdk {
   }
   async createReview(review: any) {
     try {
-      const { data: reviewResponse } = await this.axios.post(`${settings.reviewServiceBaseUrl}/reviews`, review)
+      const { data: reviewResponse } = await this.axios.post(
+        `${settings.reviewServiceBaseUrl}/reviews`,
+        review,
+      )
       return reviewResponse
     } catch (e) {
       console.log(e)

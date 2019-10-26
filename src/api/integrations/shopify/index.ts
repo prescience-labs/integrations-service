@@ -6,7 +6,7 @@ import Shopify = require('shopify-api-node')
 import { getAccessTokenFromShop } from './helpers/getAccessTokenFromShop'
 import { Integration } from '../'
 import { DB } from '../../../config/db'
-import { IShopifyAuth } from '../../../config/db/models/shopifyAuth'
+import { IShopifyStore } from '../../../config/db/models/shopifyStore'
 import { initializeShopifyCron } from '../../../config/cron/initializeCron'
 
 const router: Router = Router()
@@ -14,7 +14,7 @@ const router: Router = Router()
 export class ShopifyIntegration implements Integration {
   initialize() {
     initializeShopifyCron()
-    DB.Models.ShopifyAuth.find({}, (err: any, res: IShopifyAuth[]) => {
+    DB.Models.ShopifyStore.find({}, (err: any, res: IShopifyStore[]) => {
       res.map(async a => {
         let accessToken = a.accessToken || await getAccessTokenFromShop(a.shop) || ''
       })

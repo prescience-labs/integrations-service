@@ -1,14 +1,14 @@
 import { CronJob } from 'cron'
 import { updateStore } from '../../../api/integrations/shopify/initialize'
 import { DB } from '../../db'
-import { IShopifyAuth } from '../../db/models/shopifyAuth'
+import { IShopifyStore } from '../../db/models/shopifyStore'
 import { getAccessTokenFromShop } from '../../../api/integrations/shopify/helpers/getAccessTokenFromShop'
 import { logger } from '../../logger'
 
 export default () => [
   new CronJob('0 */5 * * * *', () => {
     try {
-      DB.Models.ShopifyAuth.find({}, (err: any, res: IShopifyAuth[]) => {
+      DB.Models.ShopifyStore.find({}, (err: any, res: IShopifyStore[]) => {
         res.forEach(async (a) => {
           const shopName = await a.shop
           const accessToken =

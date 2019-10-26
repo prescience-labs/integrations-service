@@ -4,11 +4,12 @@ import { Request, Response, Router } from 'express'
 import { DB } from '../../../config/db'
 import { logger } from '../../../config/logger'
 import { settings } from '../../../config/settings'
-import { ShopifyWebhookManager } from './webhooks/WebhookManager'
-import { updateStore, getStore, initialize } from './initialize'
+import { updateStore, initialize, createRecurringCharge } from './initialize'
 import dataIntelSdk from '../../../dataIntelSdk'
 import { VENDORS } from '..'
 import Shopify = require('shopify-api-node')
+import AuthServiceSdk from '../../../dataIntelSdk/authService'
+import { ShopifyPlan } from '../../../config/db/models/shopifyStore'
 
 const router: Router = Router()
 
@@ -44,8 +45,8 @@ router.get('/start', async (req: Request, res: Response) => {
     const shopifyRedirect: string = `https://${shop}/admin/oauth/authorize?client_id=${settings.integrations.shopify.apiKey}&scope=${scopes}&redirect_uri=${redirectUri}&state=${nonce}`
     logger.debug(`Redirect URI: ${shopifyRedirect}`)
 
-    await DB.Models.ShopifyAuth.findOneAndUpdate(
-      { shop: shop },
+    await DB.Models.ShopifyStore.findOneAndUpdate(
+      { shop },
       {
         shop,
         nonce,
@@ -55,7 +56,7 @@ router.get('/start', async (req: Request, res: Response) => {
 
     res.redirect(shopifyRedirect)
   } catch (e) {
-    logger.error((<Error>e).message)
+    logger.error(<Error>e)
   }
 })
 
@@ -64,15 +65,13 @@ router.get('/redirect', async (req: Request, res: Response) => {
   const nonce: string = req.query.state
   const shop: string = req.query.shop
 
-  let token = ''
-
   try {
-    const shopifyAuth = await DB.Models.ShopifyAuth.findOneAndUpdate(
+    const shopifyStoreFromDb = await DB.Models.ShopifyStore.findOneAndUpdate(
       { shop, nonce },
       { authorizationCode },
     )
 
-    if (shopifyAuth == null) {
+    if (shopifyStoreFromDb == null) {
       throw Error(
         `The shopify shop ${shop} doesn't exist in the database, or the nonce was invalid.`,
       )
@@ -91,35 +90,63 @@ router.get('/redirect', async (req: Request, res: Response) => {
     )
 
     const { access_token: accessToken, scope } = result.data
-
-    await shopifyAuth.updateOne({
+    const shopify = new Shopify({ accessToken, shopName: shop })
+    const shopifyStore = await shopify.shop.get()
+    await shopifyStoreFromDb.updateOne({
       accessToken,
       scope,
       meta: result.data,
+      shopifyPlan: shopifyStore.plan_name,
     })
 
     updateStore({ accessToken, shopName: shop })
 
-    const shopify = new Shopify({ accessToken, shopName: shop })
-    const shopifyStore = await shopify.shop.get()
-    dataIntelSdk
-      .createVendor({
-        integrationId: shop,
-        name: shopifyStore.name,
-        integrationType: VENDORS.shopify,
-      })
-      .then((r) => logger.info('successfully added vendor to review service'))
-      .catch((e) => logger.error(e.message))
-
-    if (!shopifyAuth.initialized) {
-      initialize({ shopName: shop, accessToken })
+    try {
+      dataIntelSdk
+        .createVendor({
+          integrationId: shop,
+          name: shopifyStore.name,
+          integrationType: VENDORS.shopify,
+        })
+        .then((r) => logger.info('successfully added vendor to review service'))
+        .catch((e) => console.trace(e.message))
+    } catch (e) {
+      console.trace(e.message)
     }
-    const token = await dataIntelSdk.forceToken({ email: shopifyStore.email })
-    res.redirect(`https://app.dataintel.ai/auth/callback?token=${token}`)
+
+    const token = await AuthServiceSdk.forceLogIn({ email: shopifyStore.email })
+    const redirectUrl = `https://app.dataintel.ai/auth/callback?token=${token}`
+    if (!shopifyStoreFromDb.initialized) {
+      try {
+        initialize({ shopName: shop, accessToken })
+      } catch (e) {
+        console.trace(e.message)
+      }
+      try {
+        const chargeResponse = await createRecurringCharge({
+          shopName: shop,
+          accessToken,
+          returnUrl: redirectUrl,
+        })
+
+        await shopifyStoreFromDb.update({ charge: chargeResponse })
+
+        res.redirect(
+          shopifyStore.plan_name === ShopifyPlan.affiliate
+            ? redirectUrl
+            : chargeResponse.confirmation_url,
+        )
+      } catch (e) {
+        console.trace(e.message)
+      }
+    }
+
+    return res.redirect(redirectUrl)
   } catch (e) {
-    logger.error((<Error>e).message)
+    console.trace(e.message)
+    logger.error(<Error>e.message)
   } finally {
-    res.status(500)
+    res.sendStatus(500)
   }
 })
 

@@ -1,17 +1,21 @@
-import { ICreateWebhook } from "shopify-api-node";
+import { ICreateWebhook } from 'shopify-api-node'
 import OrderWebhooks from './Order/definitions'
 import ProductWebhooks from './Product/definitions'
 import UninstallWebhooks from './Uninstall/definitions'
-import Shopify = require("shopify-api-node");
-import { getAccessTokenFromShop } from "../helpers/getAccessTokenFromShop";
-import { logger } from "../../../../config/logger";
-import { DB } from "../../../../config/db";
+import Shopify = require('shopify-api-node')
+import { getAccessTokenFromShop } from '../helpers/getAccessTokenFromShop'
+import { logger } from '../../../../config/logger'
+import { DB } from '../../../../config/db'
 
 export class ShopifyWebhookManager {
   private webhooks: ICreateWebhook[]
   private shop: string
   constructor(shop: string) {
-    this.webhooks = [...OrderWebhooks(shop), ...ProductWebhooks(shop), ...UninstallWebhooks(shop)]
+    this.webhooks = [
+      ...OrderWebhooks(shop),
+      ...ProductWebhooks(shop),
+      ...UninstallWebhooks(shop),
+    ]
     this.shop = shop
   }
   private async getStore() {
@@ -22,12 +26,11 @@ export class ShopifyWebhookManager {
     })
   }
   async init() {
-    const store = await this.getStore();
-    this.webhooks.map(async webhook => {
+    const store = await this.getStore()
+    this.webhooks.map(async (webhook) => {
       console.log(webhook)
       try {
         const response: Shopify.IWebhook = await store.webhook.create(webhook)
-        logger.info(`webhook ${webhook.topic} created`)
         await DB.Models.ShopifyWebhook.findOneAndUpdate(
           { shop: this.shop, topic: webhook.topic },
           {
@@ -40,11 +43,11 @@ export class ShopifyWebhookManager {
           },
           { upsert: true },
         )
-        logger.info(`webhook ${webhook.topic} saved`)
+        logger.info(`webhook ${webhook.topic} created`)
       } catch (e) {
-        logger.error('error creating webhook: ', e)
+        console.trace(e)
+        logger.error(`error creating webhook: ${webhook.topic} `, e)
       }
-
     })
   }
 }

@@ -11,6 +11,7 @@ import { getAppUrl } from './helpers/app'
 export interface IInitializeStore {
   accessToken: string
   shopName: string
+  returnUrl?: string
 }
 
 export const updateStore = (params: IInitializeStore) => {
@@ -48,27 +49,29 @@ export const setInitializationStatus = async (
   shop: string,
   status: boolean,
 ) => {
-  const shopifyAuth = await DB.Models.ShopifyAuth.findOne({ shop })
-  if (shopifyAuth) {
-    shopifyAuth.initialized = status
-    shopifyAuth.save()
+  const shopifyStore = await DB.Models.ShopifyStore.findOne({ shop })
+  if (shopifyStore) {
+    shopifyStore.initialized = status
+    shopifyStore.save()
     return true
   }
-  throw new Error('could not find store')
+  throw new Error(`Could not find store ${shop}`)
 }
 
 export const createRecurringCharge = async ({
   shopName,
   accessToken,
+  returnUrl,
 }: IInitializeStore) => {
   const store = await getStore({ shopName, accessToken })
-  store.recurringApplicationCharge.create({
+  const response = await store.recurringApplicationCharge.create({
     trial_days: 180,
     terms: 'Dolla Dolla for unlimited use',
     price: 70,
     name: 'Monthly subscription to data intel',
-    return_url: getAppUrl(shopName),
+    return_url: returnUrl || getAppUrl(shopName),
   })
+  return response
 }
 
 export const initialize = async ({
@@ -92,6 +95,6 @@ export const initialize = async ({
   } catch (e) {
     logger.error(e)
   }
-  createRecurringCharge({ shopName, accessToken })
+
   setInitializationStatus(shopName, true)
 }
