@@ -5,7 +5,7 @@ import { DB } from '../../../config/db'
 import { logger } from '../../../config/logger'
 import { settings } from '../../../config/settings'
 import { ShopifyWebhookManager } from './webhooks/WebhookManager'
-import { updateStore, getStore } from './initialize'
+import { updateStore, getStore, initialize } from './initialize'
 import dataIntelSdk from '../../../dataIntelSdk'
 import { VENDORS } from '..'
 import Shopify = require('shopify-api-node')
@@ -21,7 +21,8 @@ const scopesList: string[] = [
   'read_product_listings',
   'read_products',
   'read_script_tags',
-  'write_script_tags']
+  'write_script_tags',
+]
 const scopes: string = scopesList.join(',')
 
 interface IAccessTokenResponse {
@@ -97,7 +98,6 @@ router.get('/redirect', async (req: Request, res: Response) => {
       meta: result.data,
     })
 
-
     updateStore({ accessToken, shopName: shop })
 
     const shopify = new Shopify({ accessToken, shopName: shop })
@@ -112,25 +112,10 @@ router.get('/redirect', async (req: Request, res: Response) => {
       .catch((e) => logger.error(e.message))
 
     if (!shopifyAuth.initialized) {
-      if (settings.integrations.shopify.staticFileUrl) {
-        try {
-          shopify.scriptTag.create({ src: `${settings.integrations.shopify.staticFileUrl}/index.js`, event: 'onload' })
-        } catch (e) {
-          logger.error(e)
-        }
-      }
-      new ShopifyWebhookManager(shop).init()
-      try {
-        await dataIntelSdk.createUser({ email: shopifyStore.email })
-      } catch (e) {
-        logger.error(e)
-      }
-      shopifyAuth.initialized = true
-      shopifyAuth.save()
+      initialize({ shopName: shop, accessToken })
     }
     const token = await dataIntelSdk.forceToken({ email: shopifyStore.email })
     res.redirect(`https://app.dataintel.ai/auth/callback?token=${token}`)
-
   } catch (e) {
     logger.error((<Error>e).message)
   } finally {
