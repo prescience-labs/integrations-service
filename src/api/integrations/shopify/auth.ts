@@ -72,9 +72,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
     )
 
     if (shopifyStoreFromDb == null) {
-      throw Error(
-        `The shopify shop ${shop} doesn't exist in the database, or the nonce was invalid.`,
-      )
+      return res.sendStatus(500)
     }
 
     const authTokenUrl: string = `https://${shop}/admin/oauth/access_token`
