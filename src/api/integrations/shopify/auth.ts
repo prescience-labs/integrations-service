@@ -133,7 +133,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
 
         await shopifyStoreFromDb.update({ charge: chargeResponse })
 
-        res.redirect(
+        return res.redirect(
           shopifyStore.plan_name === ShopifyPlan.affiliate
             ? redirectUrl
             : chargeResponse.confirmation_url,
@@ -142,13 +142,11 @@ router.get('/redirect', async (req: Request, res: Response) => {
         console.trace(e.message)
       }
     }
-    try {
-      const token = await AuthServiceSdk.forceLogIn({
-        email: shopifyStore.email,
-      })
-      const redirectUrl = `https://app.dataintel.ai/auth/callback?token=${token}`
-      return res.redirect(redirectUrl)
-    } catch (e) {}
+    const token = await AuthServiceSdk.forceLogIn({
+      email: shopifyStore.email,
+    })
+    const redirectUrl = `https://app.dataintel.ai/auth/callback?token=${token}`
+    return res.redirect(redirectUrl)
   } catch (e) {
     console.trace(e.message)
     logger.error(<Error>e.message)
