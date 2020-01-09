@@ -134,7 +134,10 @@ class DataIntelSdk {
     )
   }
   async createUser({ email, password = uuid.v4() }: IAuth) {
-    const { data } = await this.axios.post(`${settings}`, { email, password })
+    const { data } = await this.axios.post(
+      `${settings.authServiceBaseUrl}/users`,
+      { email, password },
+    )
   }
   async forceToken({ email }: IAuth) {
     const {
