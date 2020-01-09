@@ -143,13 +143,12 @@ router.get('/redirect', async (req: Request, res: Response) => {
       }
     }
     try {
-    } catch (e) {
       const token = await AuthServiceSdk.forceLogIn({
         email: shopifyStore.email,
       })
       const redirectUrl = `https://app.dataintel.ai/auth/callback?token=${token}`
       return res.redirect(redirectUrl)
-    }
+    } catch (e) {}
   } catch (e) {
     console.trace(e.message)
     logger.error(<Error>e.message)
