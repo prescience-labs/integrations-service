@@ -112,6 +112,8 @@ router.get('/redirect', async (req: Request, res: Response) => {
       console.trace(e.message)
     }
 
+    console.log('SHOPIFY EMAIL: ', shopifyStore.email)
+
     if (!shopifyStoreFromDb.initialized) {
       try {
         initialize({ shopName: shop, accessToken })
