@@ -30,12 +30,13 @@ export default class AuthServiceSdk {
   }
 
   public static async forceLogIn({ email }: ILogInUser) {
+    const authHeader = AuthServiceSdk.authorizationHeader
     const {
       data: { token },
     } = await Axios.post(
       `${settings.authService.url}/token/force`,
       { email },
-      { headers: { ...AuthServiceSdk.authorizationHeader } },
+      { headers: { ...authHeader } },
     )
     return token
   }

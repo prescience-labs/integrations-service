@@ -45,7 +45,7 @@ router.get('/start', async (req: Request, res: Response) => {
     const shopifyRedirect: string = `https://${shop}/admin/oauth/authorize?client_id=${settings.integrations.shopify.apiKey}&scope=${scopes}&redirect_uri=${redirectUri}&state=${nonce}`
     logger.debug(`Redirect URI: ${shopifyRedirect}`)
 
-    await DB.Models.ShopifyStore.findOneAndUpdate(
+    const store = await DB.Models.ShopifyStore.findOneAndUpdate(
       { shop },
       {
         shop,
